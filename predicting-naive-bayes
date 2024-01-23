@@ -1,0 +1,25 @@
+install.packages("e1071")
+library(e1071)
+head(houses)
+houses$Price <- ifelse(houses$Price > 250000, "High", "Low")
+houses$YearBuilt <- ifelse(houses$YearBuilt > 2000, "New", "Old")
+houses$Bedrooms <- ifelse(houses$Bedrooms > 3, "Many", "Less")
+houses$Bathrooms <- ifelse(houses$Bathrooms > 2, "Many", "Less")
+houses$SquareFeet <- ifelse(houses$SquareFeet > 2200, "Large", "Small")
+head(houses)
+model <- naiveBayes(Price ~ ., data = houses)
+predict(model, houses[1:10,], type = "raw")
+pred <- predict(model, houses)
+predictions <- predict(model, houses, type = "raw")
+table(pred, houses$Price)
+predicted_labels <- apply(predictions, 1, function(row) ifelse(row["High"] > row["Low"], "High", "Low"))
+actual_labels <- houses$Price
+residuals <- ifelse(predicted_labels == actual_labels, 0, 1)
+squared_residuals <- residuals^2
+mse <- mean(squared_residuals)
+rmse <- sqrt(mse)
+
+cat("Mean Squared Error (MSE):", mse, "\n")
+# Mean Squared Error (MSE): 0.1939 
+cat("Root Mean Squared Error (RMSE):", rmse, "\n")
+# Root Mean Squared Error (RMSE): 0.4403408
