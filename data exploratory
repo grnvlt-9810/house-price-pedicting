@@ -1,0 +1,10 @@
+# data exploratory
+houses<-read.csv("housing_price_dataset.csv")
+head(houses)
+summary(houses)
+any(is.na(houses))
+summary(houses$Neighborhood)
+summary(houses$Price)
+houses$Price <- round(houses$Price, 2)
+head(houses)
+summary(houses$Price)
