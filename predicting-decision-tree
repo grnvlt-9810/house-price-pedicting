@@ -1,10 +1,18 @@
-library('C50')
-houses<-read.csv("housing_price_dataset.csv", stringsAsFactors = TRUE)
+library(rpart)
+library(rpart.plot)
+houses <- read.csv("housing_price_dataset.csv", stringsAsFactors = TRUE)
 houses$Neighborhood <- factor(houses$Neighborhood, levels = c("Rural", "Suburb", "Urban"), labels = c(0, 1, 2))
-houses$Price <- round(houses$Price, 2)
-data_split <- sample(nrow(iris)*0.8)
-train_data <- houses[data_split, ]
-test_data <- houses[-data_split, ]
-train_data$PriceCategory <- as.factor(train_data$Price)
-houseTree <- C5.0(formula = PriceCategory ~ SquareFeet + Bedrooms + Bathrooms + Neighborhood + YearBuilt, data = train_data)
-print(summary(houseTree))
+set.seed(123)
+data_split <- sample.int(n = nrow(houses), size = floor(nrow(houses)*0.8))
+train_data <- houses[data_split,]
+test_data <- houses[-data_split,]
+model_rpart <- rpart(Price ~ ., data = train_data, method = "anova")
+print(model_rpart)
+rpart.plot(model_rpart, extra = 101, main = "House Price Prediction" )
+predictions_rpart <- predict(model_rpart, test_data)
+predicted_prices <- predict(model_rpart, test_data)
+residuals <- test_data$Price - predicted_prices
+squared_residuals <- residuals^2
+mean_squared_error <- mean(squared_residuals)
+rmse <- sqrt(mean_squared_error)
+print(rmse)
