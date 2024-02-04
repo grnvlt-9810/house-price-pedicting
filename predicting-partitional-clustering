@@ -1,10 +1,14 @@
-summary(houses$Neighborhood)
+summary(houses$Neighborhood) # summary statistics for variable Neighborhood
+
+# histograms for various features in the dataset
 hist(houses$SquareFeet, col = 'grey')
 hist(houses$Bedrooms, col = 'green')
 hist(houses$Bathrooms, col = 'pink')
 hist(houses$Price, col = 'yellow')
 hist(houses$Neighborhood_numeric, col = 'red')
 hist(houses$YearBuilt, col = 'blue')
+
+# create scatterplot using ggplot2
 library(ggplot2)
 ggplot(houses, aes(x = YearBuilt, y = Price, color = factor(Neighborhood_numeric), size = SquareFeet)) + geom_point(aes(shape = factor(Bedrooms)), alpha = 0.7) +
  labs(title = "House Price Prediction Plot",
@@ -14,6 +18,9 @@ ggplot(houses, aes(x = YearBuilt, y = Price, color = factor(Neighborhood_numeric
        size = "Square Feet",
        shape = "Bedrooms") +
  theme_minimal()
-k_3<-kmeans(houses,3)
-clus<-cbind(data,clus2=k_3$cluster)
+
+k_3<-kmeans(houses,3) # perform k-means clustering with k=3
+clus<-cbind(data,clus2=k_3$cluster) # combine cluster information with original dataset
+
+# create scatter plot of SquareFeet against Price, colored by cluster
 plot(clus$SquareFeet, clus$Price, col=k_3$cluster, pch=k_3$cluster, main = "SquareFeet and Price", xlim=c(0,3000), ylim=c(0,300000), xlab= "SquareFeet", ylab="Price")
