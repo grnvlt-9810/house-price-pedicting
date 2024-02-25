@@ -1,10 +1,50 @@
-library('e1071')
+# data exploratory
+houses<-read.csv("housing_price_dataset.csv")
+head(houses)
+summary(houses)
+any(is.na(houses))
+summary(houses$Neighborhood)
+summary(houses$Price)
+houses$Price <- round(houses$Price, 2)
+head(houses)
+summary(houses$Price)
+
+# Install and loading required package
+install.packages("e1071")
 library(e1071)
-set.seed(123)
-sample_indices <- sample(1:nrow(houses), 0.8 * nrow(houses))
-train_data <- houses[sample_indices,]
-test_data <- houses[-sample_indices,]
-nb <- naiveBayes(Price ~ SquareFeet + Bedrooms + Bathrooms + Neighborhood + YearBuilt, data = train_data)
-pred <- predict(nb, test_data)
-cm <- table(pred, test_data$Price)
-acc <- sum(diag(cm)) / sum(cm)
+
+head(houses) # Display first few rows of the 'houses' dataset
+# Convert each numerical attributes to categorical variable
+houses$Price <- ifelse(houses$Price > 250000, "High", "Low")
+houses$YearBuilt <- ifelse(houses$YearBuilt > 2000, "New", "Old")
+houses$Bedrooms <- ifelse(houses$Bedrooms > 3, "Many", "Less")
+houses$Bathrooms <- ifelse(houses$Bathrooms > 2, "Many", "Less")
+houses$SquareFeet <- ifelse(houses$SquareFeet > 2200, "Large", "Small")
+head(houses) # Display 1st few rows of dataset to check all attributes has been converted
+
+# Build naive Bayes model on modified dataset
+model <- naiveBayes(Price ~ ., data = houses)
+
+# Make raw predictions on the first 10 rows of the dataset
+predict(model, houses[1:10,], type = "raw")
+pred <- predict(model, houses) # Make predictions on entire dataset
+
+# Get raw predictions for all instances
+predictions <- predict(model, houses, type = "raw")
+table(pred, houses$Price) # Create confusion table to evaluate model
+
+# Apply threshold to raw predictions to get predicted labels
+predicted_labels <- apply(predictions, 1, function(row) ifelse(row["High"] > row["Low"], "High", "Low"))
+actual_labels <- houses$Price # Extract actual label form dataset
+
+# Create vector of 0s and 1s (based on incorrect/correct predictions)
+residuals <- ifelse(predicted_labels == actual_labels, 0, 1)
+
+# Calculations
+squared_residuals <- residuals^2 # Calculate squared residuals
+mse <- mean(squared_residuals) # Calculate Mean Squared Error (MSE)
+rmse <- sqrt(mse) # Calculate Root Mean Squared Error (RMSE)
+
+# Print the calculated MSE and RMSE and its predicted output
+cat("Mean Squared Error (MSE):", mse, "\n") # Mean Squared Error (MSE): 0.1939
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") # Root Mean Squared Error (RMSE): 0.4403408
